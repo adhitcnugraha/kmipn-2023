@@ -57,7 +57,10 @@ func main() {
 		}
 
 		// comment
-		// conn.AutoMigrate(&model.User{}, &model.Session{}, &model.Category{}, &model.Task{})
+		conn.AutoMigrate(
+			&model.User{}, &model.Seller{}, &model.Admin{},
+			&model.Product{}, &model.Order{}, &model.Session{},
+		)
 
 		router = RunServer(conn, router)
 		router = RunClient(conn, router, Resources)

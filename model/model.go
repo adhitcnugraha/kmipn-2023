@@ -11,6 +11,55 @@ type User struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+type UserLogin struct {
+	Email    string `json:"email" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
+type UserRegister struct {
+	Fullname string `json:"fullname" binding:"required"`
+	Email    string `json:"email" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
+type Seller struct {
+	ID        int    `gorm:"primaryKey" json:"id"`
+	Email     string `json:"email" gorm:"type:varchar(255);not null"`
+	Password  string `json:"-" gorm:"type:varchar(255);not null"`
+	Address   string `json:"fullname" gorm:"type:varchar(255);not null"`
+	ShopName  string `json:"shop_name" gorm:"type:varchar(255);not null"`
+	Products  []Product
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+type Admin struct {
+	ID       int    `gorm:"primaryKey" json:"id"`
+	Email    string `json:"email" gorm:"type:varchar(255);not null"`
+	Password string `json:"-" gorm:"type:varchar(255);not null"`
+}
+
+type Product struct {
+	ID          int       `gorm:"primaryKey" json:"id"`
+	SellerID    int       `json:"seller_id" gorm:"not null"`
+	Name        string    `json:"name" gorm:"type:varchar(255);not null"`
+	Description string    `json:"description" gorm:"type:text;not null"`
+	Price       float64   `json:"price"`
+	Stock       int       `json:"stock"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
+
+type Order struct {
+	ID        int       `gorm:"primaryKey" json:"id"`
+	UserID    int       `json:"user_id" gorm:"not null"`
+	ProductID int       `json:"product_id" gorm:"not null"`
+	Quantity  int       `json:"quantity" gorm:"not null"`
+	Status    string    `json:"status" gorm:"type:varchar(255);not null"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
 type Session struct {
 	ID     int       `gorm:"primaryKey" json:"id"`
 	Token  string    `json:"token"`
