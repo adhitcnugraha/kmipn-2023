@@ -3,20 +3,33 @@ package main
 import (
 	"embed"
 	"fmt"
+
+	// "kmipn-2023/client"
 	"kmipn-2023/db"
+	"kmipn-2023/handler/api"
+	"kmipn-2023/handler/web"
+	"kmipn-2023/middleware"
 	"kmipn-2023/model"
+	repo "kmipn-2023/repository"
+	"kmipn-2023/service"
+
+	// "net/http"
 	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type APIHandler struct {
 	// struct api handler here
+	UserAPIHandler api.UserAPI
 }
 
 type ClientHandler struct {
 	// struct Client Handler here
+	AuthWeb web.AuthWeb
+	HomeWeb web.HomeWeb
 }
 
 var Resources embed.FS
@@ -74,44 +87,76 @@ func main() {
 
 }
 
-// func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
-// userRepo := repo.NewUserRepo(db)
-// sessionRepo := repo.NewSessionsRepo(db)
-// adminRepo := repo.NewAdminRepo(db)
-// productRepo := repo.NewProductRepo(db)
-// orderRepo := repo.NewOrderRepo(db)
+func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
+	userRepo := repo.NewUserRepo(db)
+	sessionRepo := repo.NewSessionsRepo(db)
+	// adminRepo := repo.NewAdminRepo(db)
+	// productRepo := repo.NewProductRepo(db)
+	// orderRepo := repo.NewOrderRepo(db)
 
-// userService := service.NewUserService(userRepo, sessionRepo)
-// adminService := service.NewAdminService(adminRepo, sessionRepo)
-// productService := service.NewProductService(productRepo)
-// orderService := service.NewOrderService(orderRepo)
+	userService := service.NewUserService(userRepo, sessionRepo)
+	// adminService := service.NewAdminService(adminRepo, sessionRepo)
+	// productService := service.NewProductService(productRepo)
+	// orderService := service.NewOrderService(orderRepo)
 
-// userAPIHandler := api.NewUserAPI(userService)
-// adminAPIHandler := api.NewAdminAPI(adminService)
-// productAPIHandler := api.NewProductAPI(productService)
-// orderAPIHandler := api.NewOrderAPI(orderService)
+	userAPIHandler := api.NewUserAPI(userService)
+	// adminAPIHandler := api.NewAdminAPI(adminService)
+	// productAPIHandler := api.NewProductAPI(productService)
+	// orderAPIHandler := api.NewOrderAPI(orderService)
 
-// apiHandler := APIHandler {
-// UserAPIHandler: userAPIHandler,
-// AdminAPIHandler: adminAPIHandler,
-// ProductAPIHandler: productAPIHandler,
-// OrderAPIHandler: orderAPIHandler,
-// }
+	apiHandler := APIHandler{
+		UserAPIHandler: userAPIHandler,
+		// AdminAPIHandler: adminAPIHandler,
+		// ProductAPIHandler: productAPIHandler,
+		// OrderAPIHandler: orderAPIHandler,
+	}
 
-// version := gin.Group("api/v1")
-// {
-// user := version.Group("/user")
-// {
-// user.POST("/login"), apiHandler.UserAPIHandler.Login
-// user.POST("/register"), apiHandler.UserAPIHandler.Register
+	version := gin.Group("/api/v1")
+	{
+		user := version.Group("/user")
+		{
+			user.POST("/login", apiHandler.UserAPIHandler.Login)
+			user.POST("/register", apiHandler.UserAPIHandler.Register)
 
-// user.Use(middleware.Auth())
-// user.GET("/product", apiHandler.ProductAPIHandler. --> kurang satu param lagi)
-// }
-// }
-// 	return nil
-// }
+			user.Use(middleware.Auth())
+			user.GET("/product", apiHandler.UserAPIHandler.GetUserProductCategory)
+		}
+	}
+	return gin
+}
 
 // func RunClient(db *gorm.DB, gin *gin.Engine, embed embed.FS) *gin.Engine {
-// 	return nil
+// 	sessionRepo := repo.NewSessionsRepo(db)
+// 	sessionService := service.NewSessionService(sessionRepo)
+
+// 	userClient := client.NewUserClient()
+
+// 	authWeb := web.NewAuthWeb(userClient, sessionService, embed)
+// 	homeWeb := web.NewHomeWeb(embed)
+
+// 	client := ClientHandler{
+// 		authWeb, homeWeb,
+// 	}
+
+// 	gin.StaticFS("/static", http.Dir("frontend/public"))
+// 	gin.GET("/", client.HomeWeb.Index)
+
+// 	user := gin.Group("/client")
+// 	{
+// 		user.GET("/login", client.AuthWeb.Login)
+// 		user.POST("/login/process", client.AuthWeb.LoginProcess)
+// 		user.GET("/register", client.AuthWeb.Register)
+// 		user.POST("/register/process", client.AuthWeb.RegisterProcess)
+
+// 		user.Use(middleware.Auth())
+// 		user.GET("/logout", client.AuthWeb.Logout)
+// 	}
+
+// 	main := gin.Group("/client")
+// 	{
+// 		main.Use(middleware.Auth())
+
+// 	}
+
+// 	return gin
 // }

@@ -11,6 +11,7 @@ type UserRepository interface {
 	CreateUser(user model.User) (model.User, error)
 	UpdateUser(user model.User) (model.User, error)
 	DeleteUser(user model.User) (model.User, error)
+	GetUserProductCategory() ([]model.UserProductCategory, error)
 }
 
 type userRepository struct {
@@ -50,4 +51,18 @@ func (r *userRepository) DeleteUser(user model.User) (model.User, error) {
 		return model.User{}, err
 	}
 	return user, nil
+}
+
+func (r *userRepository) GetUserProductCategory() ([]model.UserProductCategory, error) {
+	var userProductCategories []model.UserProductCategory
+
+	err := r.db.Table("products").
+		Select("products.id, products.name as product_name, products.description, products.category, products.price, products.stock").
+		Scan(&userProductCategories).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return userProductCategories, nil
 }

@@ -4,6 +4,7 @@ import "time"
 
 type User struct {
 	ID        int       `gorm:"primaryKey" json:"id"`
+	Fullname  string    `json:"fullname" gorm:"type:varchar(255);"`
 	Email     string    `json:"email" gorm:"type:varchar(255);not null"`
 	Password  string    `json:"-" gorm:"type:varchar(255);not null"`
 	Address   string    `json:"fullname" gorm:"type:varchar(255);"`
@@ -17,7 +18,7 @@ type UserLogin struct {
 }
 
 type UserRegister struct {
-	Fullname string `json:"fullname" binding:"required"`
+	Fullname string `json:"fullname" gorm:"type:varchar(255);"`
 	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
@@ -42,12 +43,21 @@ type Admin struct {
 type Product struct {
 	ID          int       `gorm:"primaryKey" json:"id"`
 	SellerID    int       `json:"seller_id" gorm:"not null"`
-	Name        string    `json:"name" gorm:"type:varchar(255);not null"`
+	ProductName string    `json:"product_name" gorm:"type:varchar(255);not null"`
 	Description string    `json:"description" gorm:"type:text;not null"`
 	Price       float64   `json:"price"`
 	Stock       int       `json:"stock"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
+}
+
+type UserProductCategory struct {
+	ID          int     `gorm:"primaryKey" json:"id"`
+	ProductName string  `json:"product_name" gorm:"type:varchar(255);not null"`
+	Description string  `json:"description" gorm:"type:text;not null"`
+	Category    string  `json:"category" gorm:"type:varchar(255);not null"`
+	Price       float64 `json:"price"`
+	Stock       int     `json:"stock"`
 }
 
 type Order struct {
