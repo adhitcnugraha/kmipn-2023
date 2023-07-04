@@ -92,7 +92,7 @@ func (u *userClient) Register(fullname, email, password string) (respCode int, e
 	}
 }
 
-func (u *userClient) GetUserTaskCategory(token string) (*[]model.UserProductCategory, error) {
+func (u *userClient) GetUserProductCategory(token string) (*[]model.UserProductCategory, error) {
 	client, err := GetClientWithCookie(token)
 	if err != nil {
 		return nil, err

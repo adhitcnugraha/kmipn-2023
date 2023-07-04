@@ -4,7 +4,7 @@ import (
 	"embed"
 	"fmt"
 
-	// "kmipn-2023/client"
+	"kmipn-2023/client"
 	"kmipn-2023/db"
 	"kmipn-2023/handler/api"
 	"kmipn-2023/handler/web"
@@ -13,7 +13,7 @@ import (
 	repo "kmipn-2023/repository"
 	"kmipn-2023/service"
 
-	// "net/http"
+	"net/http"
 	"sync"
 	"time"
 
@@ -28,8 +28,10 @@ type APIHandler struct {
 
 type ClientHandler struct {
 	// struct Client Handler here
-	AuthWeb web.AuthWeb
-	HomeWeb web.HomeWeb
+	AuthWeb      web.AuthWeb
+	HomeWeb      web.HomeWeb
+	DashboardWeb web.DashboardWeb
+	ModalWeb     web.ModalWeb
 }
 
 var Resources embed.FS
@@ -74,8 +76,8 @@ func main() {
 			&model.Product{}, &model.Order{}, &model.Session{},
 		)
 
-		// router = RunServer(conn, router)
-		// router = RunClient(conn, router, Resources)
+		router = RunServer(conn, router)
+		router = RunClient(conn, router, Resources)
 
 		fmt.Println("Server is running on port 8080")
 		err = router.Run(":8080")
@@ -125,38 +127,50 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 	return gin
 }
 
-// func RunClient(db *gorm.DB, gin *gin.Engine, embed embed.FS) *gin.Engine {
-// 	sessionRepo := repo.NewSessionsRepo(db)
-// 	sessionService := service.NewSessionService(sessionRepo)
+func RunClient(db *gorm.DB, gin *gin.Engine, embed embed.FS) *gin.Engine {
+	// Bagian 1
+	sessionRepo := repo.NewSessionsRepo(db)
+	sessionService := service.NewSessionService(sessionRepo)
 
-// 	userClient := client.NewUserClient()
+	// Bagian 2
+	userClient := client.NewUserClient()
 
-// 	authWeb := web.NewAuthWeb(userClient, sessionService, embed)
-// 	homeWeb := web.NewHomeWeb(embed)
+	// Bagian 3
+	homeWeb := web.NewHomeWeb(embed)
+	modalWeb := web.NewModalWeb(embed)
+	authWeb := web.NewAuthWeb(userClient, sessionService, embed)
+	dashboardWeb := web.NewDashboardWeb(userClient, sessionService, embed)
 
-// 	client := ClientHandler{
-// 		authWeb, homeWeb,
-// 	}
+	client := ClientHandler{
+		authWeb, homeWeb, dashboardWeb, modalWeb,
+	}
 
-// 	gin.StaticFS("/static", http.Dir("frontend/public"))
-// 	gin.GET("/", client.HomeWeb.Index)
+	gin.StaticFS("/static", http.Dir("frontend/public"))
 
-// 	user := gin.Group("/client")
-// 	{
-// 		user.GET("/login", client.AuthWeb.Login)
-// 		user.POST("/login/process", client.AuthWeb.LoginProcess)
-// 		user.GET("/register", client.AuthWeb.Register)
-// 		user.POST("/register/process", client.AuthWeb.RegisterProcess)
+	gin.GET("/", client.HomeWeb.Index)
 
-// 		user.Use(middleware.Auth())
-// 		user.GET("/logout", client.AuthWeb.Logout)
-// 	}
+	user := gin.Group("/client")
+	{
+		user.GET("/login", client.AuthWeb.Login)
+		user.POST("/login/process", client.AuthWeb.LoginProcess)
+		user.GET("/register", client.AuthWeb.Register)
+		user.POST("/register/process", client.AuthWeb.RegisterProcess)
 
-// 	main := gin.Group("/client")
-// 	{
-// 		main.Use(middleware.Auth())
+		user.Use(middleware.Auth())
+		user.GET("/logout", client.AuthWeb.Logout)
+	}
 
-// 	}
+	main := gin.Group("/client")
+	{
+		main.Use(middleware.Auth())
+		main.GET("/dashboard", client.DashboardWeb.Dashboard)
 
-// 	return gin
-// }
+	}
+
+	modal := gin.Group("/client")
+	{
+		modal.GET("/modal", client.ModalWeb.Modal)
+	}
+
+	return gin
+}
