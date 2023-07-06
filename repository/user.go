@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"kmipn-2023/model"
 
 	"gorm.io/gorm"
@@ -26,7 +27,10 @@ func (r *userRepository) GetUserByEmail(email string) (model.User, error) {
 	var user model.User
 	result := r.db.Where("email = ?", email).First(&user)
 	if result.Error != nil {
-		return model.User{}, nil
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return model.User{}, errors.New("user not found")
+		}
+		return model.User{}, result.Error
 	}
 	return user, nil
 }

@@ -23,7 +23,8 @@ import (
 
 type APIHandler struct {
 	// struct api handler here
-	UserAPIHandler api.UserAPI
+	UserAPIHandler   api.UserAPI
+	SellerAPIHandler api.SellerAPI
 }
 
 type ClientHandler struct {
@@ -91,23 +92,26 @@ func main() {
 
 func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 	userRepo := repo.NewUserRepo(db)
+	sellerRepo := repo.NewSellerRepo(db)
 	sessionRepo := repo.NewSessionsRepo(db)
 	// adminRepo := repo.NewAdminRepo(db)
 	// productRepo := repo.NewProductRepo(db)
 	// orderRepo := repo.NewOrderRepo(db)
 
 	userService := service.NewUserService(userRepo, sessionRepo)
-	// adminService := service.NewAdminService(adminRepo, sessionRepo)
+	sellerService := service.NewSellerService(sellerRepo, sessionRepo)
 	// productService := service.NewProductService(productRepo)
 	// orderService := service.NewOrderService(orderRepo)
 
 	userAPIHandler := api.NewUserAPI(userService)
+	sellerAPIHandler := api.NewSellerAPI(sellerService)
 	// adminAPIHandler := api.NewAdminAPI(adminService)
 	// productAPIHandler := api.NewProductAPI(productService)
 	// orderAPIHandler := api.NewOrderAPI(orderService)
 
 	apiHandler := APIHandler{
-		UserAPIHandler: userAPIHandler,
+		UserAPIHandler:   userAPIHandler,
+		SellerAPIHandler: sellerAPIHandler,
 		// AdminAPIHandler: adminAPIHandler,
 		// ProductAPIHandler: productAPIHandler,
 		// OrderAPIHandler: orderAPIHandler,
@@ -120,8 +124,15 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 			user.POST("/login", apiHandler.UserAPIHandler.Login)
 			user.POST("/register", apiHandler.UserAPIHandler.Register)
 
-			user.Use(middleware.Auth())
+			user.Use(middleware.Auth("user"))
 			user.GET("/product", apiHandler.UserAPIHandler.GetUserProductCategory)
+		}
+		seller := version.Group("/seller")
+		{
+			seller.POST("/login", apiHandler.SellerAPIHandler.Login)
+			seller.POST("/register", apiHandler.SellerAPIHandler.Register)
+
+			seller.Use(middleware.Auth("seller"))
 		}
 	}
 	return gin
@@ -156,13 +167,13 @@ func RunClient(db *gorm.DB, gin *gin.Engine, embed embed.FS) *gin.Engine {
 		user.GET("/register", client.AuthWeb.Register)
 		user.POST("/register/process", client.AuthWeb.RegisterProcess)
 
-		user.Use(middleware.Auth())
+		user.Use(middleware.Auth("user"))
 		user.GET("/logout", client.AuthWeb.Logout)
 	}
 
 	main := gin.Group("/client")
 	{
-		main.Use(middleware.Auth())
+		main.Use(middleware.Auth(""))
 		main.GET("/dashboard", client.DashboardWeb.Dashboard)
 
 	}

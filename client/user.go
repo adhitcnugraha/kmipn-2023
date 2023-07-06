@@ -12,7 +12,7 @@ import (
 
 type UserClient interface {
 	Login(email, password string) (respCode int, err error)
-	Register(fullname, email, password string) (respCode int, err error)
+	Register(username, email, password string) (respCode int, err error)
 	GetUserProductCategory(token string) (*[]model.UserProductCategory, error)
 }
 
@@ -57,9 +57,9 @@ func (u *userClient) Login(email, password string) (respCode int, err error) {
 	}
 }
 
-func (u *userClient) Register(fullname, email, password string) (respCode int, err error) {
+func (u *userClient) Register(username, email, password string) (respCode int, err error) {
 	datajson := map[string]string{
-		"fullname": fullname,
+		"username": username,
 		"email":    email,
 		"password": password,
 	}

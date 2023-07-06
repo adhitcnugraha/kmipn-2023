@@ -30,13 +30,13 @@ func (u *userAPI) Register(c *gin.Context) {
 		return
 	}
 
-	if user.Email == "" || user.Password == "" || user.Fullname == "" {
+	if user.Email == "" || user.Password == "" || user.Username == "" {
 		c.JSON(http.StatusBadRequest, model.NewErrorResponse("register data is empty"))
 		return
 	}
 
 	var recordUser = model.User{
-		Fullname: user.Fullname,
+		Username: user.Username,
 		Email:    user.Email,
 		Password: user.Password,
 	}
