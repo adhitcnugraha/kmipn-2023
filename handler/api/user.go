@@ -30,13 +30,13 @@ func (u *userAPI) Register(c *gin.Context) {
 		return
 	}
 
-	if user.Email == "" || user.Password == "" || user.Username == "" {
+	if user.Email == "" || user.Password == "" || user.Fullname == "" {
 		c.JSON(http.StatusBadRequest, model.NewErrorResponse("register data is empty"))
 		return
 	}
 
 	var recordUser = model.User{
-		Username: user.Username,
+		Fullname: user.Fullname,
 		Email:    user.Email,
 		Password: user.Password,
 	}
@@ -84,6 +84,7 @@ func (u *userAPI) Login(c *gin.Context) {
 		"user_id": loginUser.ID,
 		"message": "login success",
 	})
+	// TODO: answer here
 }
 
 func (u *userAPI) GetUserProductCategory(c *gin.Context) {

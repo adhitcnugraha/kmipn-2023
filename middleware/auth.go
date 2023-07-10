@@ -8,7 +8,7 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-func Auth(role string) gin.HandlerFunc {
+func Auth() gin.HandlerFunc {
 	return gin.HandlerFunc(func(ctx *gin.Context) {
 
 		url := ctx.Request.Host + ctx.Request.URL.Path
@@ -44,18 +44,6 @@ func Auth(role string) gin.HandlerFunc {
 		if claims, ok := token.Claims.(*model.Claims); ok && token.Valid {
 			ctx.Set("email", claims.Email)
 		} else {
-			ctx.JSON(http.StatusUnauthorized, model.NewErrorResponse("Unauthorized"))
-			ctx.Abort()
-			return
-		}
-
-		if role != "user" {
-			ctx.JSON(http.StatusUnauthorized, model.NewErrorResponse("Unauthorized"))
-			ctx.Abort()
-			return
-		}
-
-		if role != "seller" {
 			ctx.JSON(http.StatusUnauthorized, model.NewErrorResponse("Unauthorized"))
 			ctx.Abort()
 			return

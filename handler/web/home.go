@@ -14,7 +14,7 @@ type HomeWeb interface {
 }
 
 type homeWeb struct {
-	embed embed.FS
+	embed embed.FS `embed:"embed"`
 }
 
 func NewHomeWeb(embed embed.FS) *homeWeb {

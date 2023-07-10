@@ -23,8 +23,8 @@ import (
 
 type APIHandler struct {
 	// struct api handler here
-	UserAPIHandler   api.UserAPI
-	SellerAPIHandler api.SellerAPI
+	UserAPIHandler api.UserAPI
+	// SellerAPIHandler api.SellerAPI
 }
 
 type ClientHandler struct {
@@ -92,26 +92,26 @@ func main() {
 
 func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 	userRepo := repo.NewUserRepo(db)
-	sellerRepo := repo.NewSellerRepo(db)
+	// sellerRepo := repo.NewSellerRepo(db)
 	sessionRepo := repo.NewSessionsRepo(db)
 	// adminRepo := repo.NewAdminRepo(db)
 	// productRepo := repo.NewProductRepo(db)
 	// orderRepo := repo.NewOrderRepo(db)
 
 	userService := service.NewUserService(userRepo, sessionRepo)
-	sellerService := service.NewSellerService(sellerRepo, sessionRepo)
+	// sellerService := service.NewSellerService(sellerRepo, sessionRepo)
 	// productService := service.NewProductService(productRepo)
 	// orderService := service.NewOrderService(orderRepo)
 
 	userAPIHandler := api.NewUserAPI(userService)
-	sellerAPIHandler := api.NewSellerAPI(sellerService)
+	// sellerAPIHandler := api.NewSellerAPI(sellerService)
 	// adminAPIHandler := api.NewAdminAPI(adminService)
 	// productAPIHandler := api.NewProductAPI(productService)
 	// orderAPIHandler := api.NewOrderAPI(orderService)
 
 	apiHandler := APIHandler{
-		UserAPIHandler:   userAPIHandler,
-		SellerAPIHandler: sellerAPIHandler,
+		UserAPIHandler: userAPIHandler,
+		// SellerAPIHandler: sellerAPIHandler,
 		// AdminAPIHandler: adminAPIHandler,
 		// ProductAPIHandler: productAPIHandler,
 		// OrderAPIHandler: orderAPIHandler,
@@ -124,16 +124,16 @@ func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
 			user.POST("/login", apiHandler.UserAPIHandler.Login)
 			user.POST("/register", apiHandler.UserAPIHandler.Register)
 
-			user.Use(middleware.Auth("user"))
+			user.Use(middleware.Auth())
 			user.GET("/product", apiHandler.UserAPIHandler.GetUserProductCategory)
 		}
-		seller := version.Group("/seller")
-		{
-			seller.POST("/login", apiHandler.SellerAPIHandler.Login)
-			seller.POST("/register", apiHandler.SellerAPIHandler.Register)
+		// seller := version.Group("/seller")
+		// {
+		// 	seller.POST("/login", apiHandler.SellerAPIHandler.Login)
+		// 	seller.POST("/register", apiHandler.SellerAPIHandler.Register)
 
-			seller.Use(middleware.Auth("seller"))
-		}
+		// 	seller.Use(middleware.Auth())
+		// }
 	}
 	return gin
 }
@@ -147,9 +147,9 @@ func RunClient(db *gorm.DB, gin *gin.Engine, embed embed.FS) *gin.Engine {
 	userClient := client.NewUserClient()
 
 	// Bagian 3
-	homeWeb := web.NewHomeWeb(embed)
-	modalWeb := web.NewModalWeb(embed)
 	authWeb := web.NewAuthWeb(userClient, sessionService, embed)
+	modalWeb := web.NewModalWeb(embed)
+	homeWeb := web.NewHomeWeb(embed)
 	dashboardWeb := web.NewDashboardWeb(userClient, sessionService, embed)
 
 	client := ClientHandler{
@@ -162,20 +162,19 @@ func RunClient(db *gorm.DB, gin *gin.Engine, embed embed.FS) *gin.Engine {
 
 	user := gin.Group("/client")
 	{
+
 		user.GET("/login", client.AuthWeb.Login)
 		user.POST("/login/process", client.AuthWeb.LoginProcess)
 		user.GET("/register", client.AuthWeb.Register)
 		user.POST("/register/process", client.AuthWeb.RegisterProcess)
-
-		user.Use(middleware.Auth("user"))
+		user.Use(middleware.Auth())
 		user.GET("/logout", client.AuthWeb.Logout)
 	}
 
 	main := gin.Group("/client")
 	{
-		main.Use(middleware.Auth(""))
+		main.Use(middleware.Auth())
 		main.GET("/dashboard", client.DashboardWeb.Dashboard)
-
 	}
 
 	modal := gin.Group("/client")

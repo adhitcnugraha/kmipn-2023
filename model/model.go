@@ -4,10 +4,10 @@ import "time"
 
 type User struct {
 	ID        int       `gorm:"primaryKey" json:"id"`
-	Username  string    `json:"username" gorm:"type:varchar(255);"`
+	Fullname  string    `json:"fullname" gorm:"type:varchar(255);"`
 	Email     string    `json:"email" gorm:"type:varchar(255);not null"`
 	Password  string    `json:"-" gorm:"type:varchar(255);not null"`
-	Address   string    `json:"fullname" gorm:"type:varchar(255);"`
+	Address   string    `json:"address" gorm:"type:varchar(255);"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -18,7 +18,7 @@ type UserLogin struct {
 }
 
 type UserRegister struct {
-	Username string `json:"username" gorm:"type:varchar(255);"`
+	Fullname string `json:"fullname" gorm:"type:varchar(255);"`
 	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
@@ -28,7 +28,7 @@ type Seller struct {
 	Username  string `json:"username" gorm:"type:varchar(255);"`
 	Email     string `json:"email" gorm:"type:varchar(255);not null"`
 	Password  string `json:"-" gorm:"type:varchar(255);not null"`
-	Address   string `json:"fullname" gorm:"type:varchar(255);not null"`
+	Address   string `json:"address" gorm:"type:varchar(255);not null"`
 	ShopName  string `json:"shop_name" gorm:"type:varchar(255);not null"`
 	Products  []Product
 	CreatedAt time.Time `json:"created_at"`
