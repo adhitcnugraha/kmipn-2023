@@ -3,7 +3,6 @@ package main
 import (
 	"embed"
 	"fmt"
-
 	"kmipn-2023/client"
 	"kmipn-2023/db"
 	"kmipn-2023/handler/api"
@@ -12,6 +11,8 @@ import (
 	"kmipn-2023/model"
 	repo "kmipn-2023/repository"
 	"kmipn-2023/service"
+
+	"github.com/gin-contrib/cors"
 
 	"net/http"
 	"sync"
@@ -91,6 +92,9 @@ func main() {
 }
 
 func RunServer(db *gorm.DB, gin *gin.Engine) *gin.Engine {
+	// CORS Middleware
+	gin.Use(cors.Default())
+
 	userRepo := repo.NewUserRepo(db)
 	// sellerRepo := repo.NewSellerRepo(db)
 	sessionRepo := repo.NewSessionsRepo(db)

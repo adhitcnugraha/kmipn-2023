@@ -51,5 +51,4 @@ func Auth() gin.HandlerFunc {
 
 		ctx.Next()
 	})
-
 }
