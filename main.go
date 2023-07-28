@@ -60,7 +60,7 @@ func main() {
 		}))
 		router.Use(gin.Recovery())
 		dbCredential := model.Credential{
-			Host:         "127.0.0.1",
+			Host:         "0.0.0.0",
 			Username:     "postgres",
 			Password:     "rastafara86",
 			DatabaseName: "postgres",
